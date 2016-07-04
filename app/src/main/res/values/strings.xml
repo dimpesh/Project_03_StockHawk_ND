@@ -1,0 +1,22 @@
+<resources>
+  <string name="app_name">Stock Hawk</string>
+
+  <string name="action_example">Example action</string>
+
+  <string name="action_settings">Settings</string>
+  <string name="action_change_units" translatable="false">Change Units</string>
+  <string name="symbol_search" translatable="false">Symbol Search</string>
+  <string name="content_test" translatable="false">Search for a Stock Symbol</string>
+  <string name="input_hint" translatable="false">FB</string>
+  <string name="input_prefill" translatable="false"></string>
+  <string name="network_toast" translatable="false">Uh-oh! This app requires an internet connection</string>
+    <string name="content_graph" translatable="false">Loading Graph of choosen stock</string>
+  <string name="no_connection_available" translatable="false">No Active Data Connection Available ! Data is Outdated</string>
+    <string name="title_activity_graph_display" translatable="false">GraphDisplayActivity</string>
+  <string name="hello_widget">Hello Widget</string>
+  <string name="valid_symbol" translatable="false">Symbol Found</string>
+  <string name="empty_list">Data Connection Not Available.Please Try Later</string>
+  <string name="emptyViewStr">No Data Available</string>
+  <string name="empty_stock_list">Data Not Available</string>
+  <string name="already_saved">This stock is already saved!</string>
+</resources>
