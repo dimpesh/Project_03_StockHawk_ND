@@ -36,7 +36,9 @@ package com.sam_chordas.android.stockhawk.ui;
 public class GraphDisplayActivity extends AppCompatActivity
 {
     TextView company_name;
+    TextView exch,cl_price;
     public ValueLineChart chart;
+    TextView cname,ticker,currency;
     String companyStr;
     public ValueLineSeries series;
     String class_name;
@@ -51,7 +53,13 @@ public class GraphDisplayActivity extends AppCompatActivity
         setContentView(R.layout.activity_line_graph);
 
 
+        exch=(TextView)findViewById(R.id.exch_name);
+        cl_price=(TextView)findViewById(R.id.cl_price);
         company_name= (TextView) findViewById(R.id.item_stock_symbol);
+        cname=(TextView) findViewById(R.id.name);
+        currency= (TextView) findViewById(R.id.currency);
+        ticker=(TextView) findViewById(R.id.ticker);
+
 //        chart= (ValueLineChart) findViewById(R.id.cubiclinechart);
 //        series = new ValueLineSeries();
 //        series.setColor(0xFF56B7F1);
@@ -72,30 +80,36 @@ public class GraphDisplayActivity extends AppCompatActivity
 //        chart.addSeries(series);
 //        chart.startAnimation();
         companyStr=getIntent().getStringExtra("company");
-        company_name.setText(companyStr);
+//        company_name.setText(companyStr);
         Log.v("Company Name VERBOSE",companyStr);
 
         new FetchDataTask().execute(companyStr);
     }
 
 
-    class FetchDataTask extends AsyncTask<String,Void,GraphData[]> {
+    class FetchDataTask extends AsyncTask<String,Void,GraphDetail> {
         ProgressDialog dialog = new ProgressDialog(mContext);
         ContentLoadingProgressBar progressBar = new ContentLoadingProgressBar(getApplicationContext());
 //        MovieObject [] movieObjects=null;
         //     String []str=null;
-
+        GraphDetail gd;
         @Override
-        protected void onPostExecute(GraphData[] data)
+        protected void onPostExecute(GraphDetail gd)
         {
+            setTitle("Graphical Analysis : "+gd.getTicker().toUpperCase());
+            currency.setText(gd.getCurrency());
+            ticker.setText(gd.getTicker());
+            cl_price.setText(gd.getPrev_price());
+            exch.setText(gd.getExch_name());
+            cname.setText(gd.getCompany_name());
             ValueLineChart lineChart= (ValueLineChart) findViewById(R.id.cubiclinechart);
             series = new ValueLineSeries();
             series.setColor(0xFF56B7F1);
-
-            for(int i=0;i<graphData.length;i++)
+            company_name.setText(gd.getCompany_name());
+            for(int i=0;i<gd.value.size();i++)
             {
-                Log.v("OnPostExecute : ", graphData[i].getDate()+" "+graphData[i].getValue());
-                series.addPoint(new ValueLinePoint(graphData[i].getDate(), (float) graphData[i].getValue()));
+                Log.v("OnPostExecute : ","sfhl");
+                series.addPoint(new ValueLinePoint(gd.date.get(i), (float) gd.value.get(i)));
             }
             lineChart.addSeries(series);
             lineChart.startAnimation();
@@ -108,7 +122,7 @@ public class GraphDisplayActivity extends AppCompatActivity
         }
 
         @Override
-        protected GraphData[] doInBackground(String... strings) {
+        protected GraphDetail doInBackground(String... strings) {
             final String StockBaseUrl = "http://chartapi.finance.yahoo.com/instrument/1.0/";
             final String StockEndUrl = "/chartdata;type=quote;range=2m/json";
 //            GraphData[] graphData = null;
@@ -151,19 +165,30 @@ public class GraphDisplayActivity extends AppCompatActivity
                 Log.v("MY DATA : ", "Completed ...");
                 String string = stockJSONStr.substring(29);
                 Log.v("SubString ", string);
-                JSONObject stockJSONObject = new JSONObject(string);
+                JSONObject obj1 = new JSONObject(string);
+                JSONObject obj2=obj1.getJSONObject("meta");
 
-                JSONArray myarray = stockJSONObject.getJSONArray("series");
+                gd=new GraphDetail();
+                gd.setExch_name(obj2.getString("Exchange-Name"));
+                gd.setPrev_price(obj2.getString("previous_close_price"));
+                gd.setTicker(obj2.getString("ticker"));
+                Log.v("GD : ",gd.getTicker());
+                gd.setCompany_name(obj2.getString("Company-Name"));
+                Log.v("GD : ",gd.getCompany_name());
+
+                gd.setCurrency(obj2.getString("currency"));
+                Log.v("GD : ",gd.getCurrency());
+
+                JSONArray myarray = obj1.getJSONArray("series");
 
                 Log.v("MY Array :", myarray.toString());
-                graphData = new GraphData[myarray.length()];
+ //               graphData = new GraphData[myarray.length()];
                 for (int i = 0; i < myarray.length(); i++) {
-                    graphData[i] = new GraphData();
                     JSONObject graphjson = myarray.getJSONObject(i);
-                    graphData[i].date = graphjson.getString("Date");
-                    graphData[i].value = graphjson.getDouble("close");
-
-                    Log.v("DATE and Value" + (i + 1) + " : ", graphData[i].date + " and " + graphData[i].value);
+                    gd.date.add(graphjson.getString("Date"));
+//                    gd.graphData[i].value=(graphjson.getDouble("close"));
+                    gd.value.add((float) graphjson.getDouble("close"));
+//                    Log.v("My Tag" + (i + 1) + " : ", graphData[i].date + " and " + graphData[i].value);
                 }
 
 
@@ -172,7 +197,7 @@ public class GraphDisplayActivity extends AppCompatActivity
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            return graphData;
+            return gd;
         }
     }
 
