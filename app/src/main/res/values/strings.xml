@@ -19,4 +19,5 @@
   <string name="emptyViewStr">No Data Available</string>
   <string name="empty_stock_list">Data Not Available</string>
   <string name="already_saved">This stock is already saved!</string>
+  <string name="stats">Stats</string>
 </resources>
